@@ -13,7 +13,7 @@
     "express",
     "middleware"
   ],
-  "author": "Adi Mor Barak",
+  "author": "adimb",
   "license": "ISC",
   "dependencies": {
     "axios": "0.20.0",
