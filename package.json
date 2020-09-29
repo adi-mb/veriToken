@@ -1,6 +1,6 @@
 {
   "name": "@mbsoft/veritoken",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An express middleware using VeriToken service https://veritoken.co",
   "main": "index.js",
   "scripts": {
