@@ -1,6 +1,6 @@
 {
   "name": "@mbsoft/veritoken",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "An express middleware using VeriToken service https://veritoken.co",
   "main": "index.js",
   "scripts": {
@@ -15,6 +15,7 @@
   ],
   "author": "adimb",
   "license": "ISC",
+  "homepage": "https://veritoken.co",
   "dependencies": {
     "axios": "0.20.0",
     "lodash": "4.17.20"
