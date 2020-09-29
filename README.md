@@ -36,7 +36,7 @@ There are number of ways an attacker can steal your organisation token:
 
 ### How To
 - [x] Register for free to get a client id at [veriToken.co](https://veriToken.co/#/auth/register/client)
-- [x] Install the package: ```npm i veritoken```
+- [x] Install the package: ```npm i @mbsoft/veritoken```
 - [x] Log in to [veriToken.co](https://veriToken.co), copy your client id and manage your middleware roles.
 - [x] Open your app.js or any other file that holds the [Express](https://expressjs.com/) definition.
 - [x] Follow the bellow code to implement the middleware: 
