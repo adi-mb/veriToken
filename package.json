@@ -1,5 +1,5 @@
 {
-  "name": "veritoken",
+  "name": "veriToken",
   "version": "1.0.0",
   "description": "An express middleware using VeriToken service https://veritoken.co",
   "main": "index.js",
