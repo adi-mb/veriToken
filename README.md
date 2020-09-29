@@ -42,7 +42,7 @@ There are number of ways an attacker can steal your organisation token:
 - [x] Follow the bellow code to implement the middleware: 
 ```javascript
 
-const veritoken = require('veritoken');
+const veritoken = require('@mbsoft/veritoken');
 // Create Express webapp. e.g. following 4 lines are yours this is just an example
 let app = express();
 app.use(bodyParser.json({limit: '50mb'}));
