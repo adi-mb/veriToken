@@ -1,5 +1,5 @@
 {
-  "name": "@mbsoft/verify-token",
+  "name": "@mbsoft/veriToken",
   "version": "1.0.0",
   "description": "An express middleware using VeriToken service https://veritoken.co",
   "main": "index.js",
