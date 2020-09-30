@@ -51,7 +51,7 @@ const verifyToken = (clientId, active = true, ignorePaths = [], ignoreHttpMethod
 
             const clientIP = getRemoteIp(req);
 
-            axios.post('https://veritoken.co/api/verifyToken', {
+            axios.post('https://api.veritoken.co/api/verifyToken', {
                 clientId: clientId,
                 token: token,
                 clientHeaders: req.headers,
