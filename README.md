@@ -90,8 +90,11 @@ Following the token verification, VeriToken middleware adds a new property to yo
 
 For any support or any question please email us to [support@veritoken.co](mailto:support@veritoken.co)
 
+#
+
+#### Notice
 ```diff
-- Notice: There might be trouble receiving our registration email, 
+- There might be trouble receiving our registration email, 
 - we are waiting for gmail SMTP update meanwhile to activate your 
 - account you can approach us at support@veritoken.co
 ```
