@@ -88,4 +88,8 @@ Following the token verification, VeriToken middleware adds a new property to yo
 
 **On your own middleware you can decide what is action based on VeriToken outcome :smile:**
 
-For any support or any question please send us an email to [support@veritoken.co](mailto:support@veritoken.co)
+For any support or any question please email us to [support@veritoken.co](mailto:support@veritoken.co)
+
+```html
+<div style="color: #f03c15">Notice: There might be trouble receiving our registration email, we are waiting for gmail SMTP update meanwhile to activate your account you can approach us at [support@veritoken.co](mailto:support@veritoken.co).</div>
+```
