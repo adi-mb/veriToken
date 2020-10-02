@@ -17,7 +17,7 @@ A token cannot be changed due to the fact that it’s encoded and password prote
 ### How can an attacker get a hold of your organisation token?
 There are number of ways an attacker can steal your organisation token:
 - Most of the websites store their token on the local storage which can be accessed e.g adding a zero iframe with your org domains to another web page.
-- Monitor traffic to intercept the token sent in the HTTP header.
+- Man in the middle - monitor connected local network traffic to intercept the token sent in the HTTP header.
 - Access your mobile phone storage.
 - Physically copy it.
 
