@@ -23,16 +23,17 @@ There are number of ways an attacker can steal your organisation token:
 
 ##### To secure the above vulnerability we have developed a ML based token vault middleware that protects your organisation tokens from been stolen or misuse.
 
-### Our free account [Express](https://expressjs.com/) middleware prevents token misuse:
+### Our free account [Express](https://expressjs.com/) middleware prevents JWT token misuse:
 - From different location.
 - From different IP range.
 - Limited token overuse.
 
-### Our future paid release will introduce the following prevention capabilities:
+### Our future versions will introduce the following prevention capabilities:
 - User related behavioural analysis screening and rule engine for management.
 - ML/DL screening to produce trafic insights.
 - Analytics and reports.
 - Other tech stack middleware libraries.
+- Extend support for other technologies beside JWT Token.
 
 ### How To
 - [x] Register for free to get a client id at [veriToken.co](https://veriToken.co/#/auth/register/client)
@@ -92,9 +93,3 @@ For any support or any question please email us to [support@veritoken.co](mailto
 
 #
 
-#### Notice
-```diff
-- There might be trouble receiving our registration email, 
-- we are waiting for gmail SMTP update meanwhile to activate your 
-- account you can approach us at support@veritoken.co
-```
