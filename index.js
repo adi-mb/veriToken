@@ -4,8 +4,10 @@ const axios = require('axios');
 const _ = require('lodash');
 
 /**
- * Verity your client tokens.
+ * Verity your client tokens/session ids.
  * @param clientId Your client ID - register for free at: https://veritoken.co
+ * @param type Whether it's a 'token' (default) or 'session' - taken from a cookie key.
+ * @param sessionCookieName If type === 'session' then you should set the session cookie name that holds the session id.
  * @param active Apply some rules whether you wish to activate the middleware - e.g. on dev or staging environments you don't wish to run the middleware. - default is: true
  * @param ignorePaths Array of paths you do not wish to verify e.g. ['/api/auth/login']
  * @param ignoreHttpMethods Array of HTTP method to ignore when testing the token. - the default is : ['OPTIONS', 'GET']
@@ -13,7 +15,7 @@ const _ = require('lodash');
  * The value of veriToken is an object with the following properties:  on failure : {status: 'failed', message: 'error  message'}
  * on success: {status: 'success', message: 'success message'}. Then you can do with in whatever you want on the next middleware.
  */
-const verifyToken = (clientId, active = true, ignorePaths = [], ignoreHttpMethods = ['OPTIONS', 'GET']) => {
+const verifyToken = (clientId, type = 'token', sessionCookieName = undefined, active = true, ignorePaths = [], ignoreHttpMethods = ['OPTIONS', 'GET']) => {
 
     return (req, res, next) => {
         try {
@@ -33,17 +35,24 @@ const verifyToken = (clientId, active = true, ignorePaths = [], ignoreHttpMethod
             }
 
             let token;
-            if (req.headers) {
-                token = _.get(req.headers, 'authorization', null);
-                if (token) {
-                    token = token.split(" ")[1];
+            if (type === 'token') {
+                if (req.headers) {
+                    token = _.get(req.headers, 'authorization', null);
+                    if (token) {
+                        token = token.split(" ")[1];
+                    }
+                }
+            } else {
+                // Type 'session'
+                if (req.headers && sessionCookieName) {
+                    token = getSessionIdFromCookies(req.headers, sessionCookieName);
                 }
             }
 
             if (!token) {
                 req.veriToken = {
                     status: 'failed',
-                    message: 'Token do not exists'
+                    message: 'Token/Session does not exists'
                 };
                 next();
                 return;
@@ -78,6 +87,15 @@ const verifyToken = (clientId, active = true, ignorePaths = [], ignoreHttpMethod
             next();
         }
     };
+};
+
+const getSessionIdFromCookies = function(headers, key) {
+    const cookies = {};
+    headers.cookie.split(';').forEach(function(cookie) {
+        var parts = cookie.match(/(.*?)=(.*)$/)
+        cookies[ parts[1].trim() ] = (parts[2] || '').trim();
+    });
+    return cookies[key];
 };
 
 
