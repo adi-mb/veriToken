@@ -27,7 +27,7 @@ There are number of ways an attacker can steal your identity:
 - Access your mobile phone storage.
 - Physically copy it.
 
-##### To secure the above vulnerability we have developed a ML based middleware that protects your identity from been stolen or misuse.
+##### To secure the above vulnerability we have developed a middleware that protects your identity from been stolen or misuse.
 
 ### Our free account [Express](https://expressjs.com/) middleware prevents token/session misuse:
 - From different location.
@@ -35,8 +35,8 @@ There are number of ways an attacker can steal your identity:
 - Limited token/session overuse.
 
 ### Our future versions will introduce the following prevention capabilities:
-- User related behavioural analysis screening and rule engine for management.
-- ML/DL screening to produce trafic insights.
+- Extend our rule engine management interface.
+- Anomaly detection to propagate abnormal user behavior.
 - Analytics and reports.
 - Other tech stack middleware libraries.
 
