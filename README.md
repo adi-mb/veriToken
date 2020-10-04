@@ -22,7 +22,8 @@ A session id taken from the cookie can also be stolen and reused till it expires
 ### How can an attacker get a hold of your token/session id?
 There are number of ways an attacker can steal your identity:
 - Website stores authentication token or session id on the local storage or cookie which can be accessed e.g adding a zero iframe with your org domains to another web page.
-- Man in the middle - monitor connected local network traffic to intercept the token or seesion id sent in the HTTP header.
+- Man in the middle - monitor connected local network traffic to intercept the token or seesion id.
+- Malicious Browser addons.
 - Access your mobile phone storage.
 - Physically copy it.
 
@@ -53,16 +54,26 @@ let app = express();
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: false}));
 app.use(compression({filter: shouldCompress}));
+//////////////////////////////////////////
 
-// Use veriToken middleware
+// ******* Use veriToken middleware ************
 
 // For token authentication - PLACE IT IN A PLACE BEFOR YOUR TOKEN VERIFICATION MIDDLEWARE
 app.use(veritoken('your-client-id'));
-
+// OR
 // For session based authentication - PLACE IT IN A PLACE BEFOR YOUR SESSION VERIFICATION MIDDLEWARE
 app.use(veritoken('your-client-id'), 'session', 'YOUR-SESSION-COOKIE-NAME');
 
-app.use(myMiddleware());
+// **********************************************
+
+// Your middleware that verifies your users - g.e.s
+app.use((req,res,next) => {
+    if (req.veriToken && req.veriToken.status === 'failed') {
+        // You can decide what to do from here e.g. return 401 
+        res.status('401').send({status: 'fail', reason: req.veriToken.message});
+    }
+    // code code
+});
 ```
 
 ### Middleware arguments
