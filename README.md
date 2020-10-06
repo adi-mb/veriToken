@@ -1,9 +1,9 @@
-# VeriToken [Express](https://expressjs.com/) middleware
+# VeriToken middleware
 
-### Enterprise Grade Identity Theft & Data Exploitation Prevention As A Service
-VeriToken provides your business with an enterprise grade security solution that prevents external and internal users from stealing or abusing your identity and exploiting your data.
+### Identity Theft & Data Exploitation Prevention
+VeriToken is an [Express](https://expressjs.com/) middleware that provides an extra layer of security to protect your server authentication. It prevents external and internal users from stealing or abusing your identity and exploiting your data.
 
-This is achieved by providing you with a proprietary lightweight API that anonymously validates your organisation authentication token/session and conducts behavioural analysis to indicate potential identity thefts or data exploitation in real-time.
+This is achieved by defining a set of rules that validates your token/session that will indicate potential identity thefts or data exploitation in real-time.
 
 Whether an employee is attempting to access unauthorised data or an hacker trying to perform actions under false identity, VeriToken will give you the ability to instantly react and mitigate these threats.
 
@@ -22,33 +22,74 @@ A session id taken from the cookie can also be stolen and reused till it expires
 ### How can an attacker get a hold of your token/session id?
 There are number of ways an attacker can steal your identity:
 - Website stores authentication token or session id on the local storage or cookie which can be accessed e.g adding a zero iframe with your org domains to another web page.
-- Man in the middle - monitor connected local network traffic to intercept the token or seesion id.
+- Monitor local network traffic to intercept the token or seesion id.
 - Malicious Browser addons.
 - Access your mobile phone storage.
 - Physically copy it.
 
 ##### To secure the above vulnerability we have developed a middleware that protects your identity from been stolen or misuse.
 
-### Our free account [Express](https://expressjs.com/) middleware prevents token/session misuse:
-- From different location.
-- From different IP range.
-- Limited token/session overuse.
+### Token/Session Validators Here The current verion Our free account [Express](https://expressjs.com/) middleware prevents token/session misuse:
+The default set of validators we use are:  
+- If your token/session was issued to one IP address, it cannot be used from another IP.
+- If your token/session was issued for a certain device, it cannot be used from another device.
+- If your token/session was issued with a Csrf token (Cross Site Request Forgery token), it cannot change.
+- The maximum number of API hits using this token/session.
 
-### Our future versions will introduce the following prevention capabilities:
-- Extend our rule engine management interface.
-- Anomaly detection to propagate abnormal user behavior.
-- Analytics and reports.
-- Other tech stack middleware libraries.
+You can manage your preferences by overriding the default validators definition:
+```javascript
+[
+    {
+        "type" : "ip",
+        "enabled" : true,
+        "description" : "If your token was issued to one IP address, it cannot be used from another IP"
+    },
+    {
+        "type" : "User-Agent",
+        "enabled" : true,
+        "description" : "If your token was issued for a certain device, it cannot be used from another device"
+    },
+    {
+        "type" : "X-Csrf-Token",
+        "enabled" : true,
+        "description" : "If your token was issued with a Csrf token (Cross Site Request Forgery token), it cannot changed"
+    },
+    {
+        "type" : "maxHits",
+        "enabled" : true,
+        "description" : "The maximum number of API hits using this token",
+        "value" : 50
+    }
+]
+```
+Your can disable one of the validators or change the max number of hits or even fork this repo to extend it.
 
+### Dependency
+- [x] This package uses Redis, the package gets a Redis client reference and assume that it has been connected.
+ 
 ### How To
-- [x] Register for free to get a client id at [veriToken.co](https://veriToken.co/#/auth/register/client)
-- [x] Install the package: ```npm i @mbsoft/veritoken```
-- [x] Log in to [veriToken.co](https://veriToken.co), copy your client id and manage your middleware roles.
-- [x] Open your app.js or any other file that holds the [Express](https://expressjs.com/) definition.
-- [x] Follow the bellow code to implement the middleware: 
 ```javascript
 
-const veritoken = require('@mbsoft/veritoken');
+// Connect to Redis
+const hostname = 'YOUR HOST';
+const port = 'YOUR PORT';
+const password = 'YOUR PASSWORD';
+const redis = require('redis');
+redisClient = redis.createClient(port, hostname, {no_ready_check: true});
+if (hostname !== '127.0.0.1') {
+    redisClient.auth(password, (err) => {
+        if (err) {
+            logger.error("Fail to connect to redis");
+            throw err;
+        }
+    });
+}
+redisClient.on('connect', function () {
+    logger.info(`Connected to Redis on: ${hostname}:${port}`);
+});
+//////////////////////////////////////////
+
+
 // Create Express webapp. e.g. following 4 lines are yours this is just an example
 let app = express();
 app.use(bodyParser.json({limit: '50mb'}));
@@ -57,12 +98,15 @@ app.use(compression({filter: shouldCompress}));
 //////////////////////////////////////////
 
 // ******* Use veriToken middleware ************
+const veritoken = require('@mbsoft/veritoken');
 
 // For token authentication - PLACE IT IN A PLACE BEFOR YOUR TOKEN VERIFICATION MIDDLEWARE
-app.use(veritoken('your-client-id'));
+app.use(veritoken(redisClient));
+
 // OR
+
 // For session based authentication - PLACE IT IN A PLACE BEFOR YOUR SESSION VERIFICATION MIDDLEWARE
-app.use(veritoken('your-client-id'), 'session', 'YOUR-SESSION-COOKIE-NAME');
+app.use(veritoken(redisClient), 'session', 'YOUR-SESSION-COOKIE-NAME');
 
 // **********************************************
 
@@ -78,19 +122,18 @@ app.use((req,res,next) => {
 
 ### Middleware arguments
 VeriToken middleware supports the following arguments:
-- clientId (required) - the registered client id.
+- redisClient (required) - connected redis client.
 - type (optional) - 'token' - Token based authentication (default) or 'session' Cookie based authentication.
 - sessionCookieName (optional) - If type === 'session' apply the session cookie name located in your client request header.
 - active (optional) - Apply some rules whether you wish to activate the middleware - e.g. on dev or staging environments you don't wish to run the middleware. (default: true)
 - ignorePaths (optional) - Array of paths you do not wish to verify e.g. ['/api/auth/login'] (default: [])
-- ignoreHttpMethods (optional) - Array of HTTP method to ignore when testing the token. (default : ['OPTIONS', 'GET'])
+- ignoreHttpMethods (optional) - An array of HTTP method to ignore when testing the token. (default : ['OPTIONS', 'GET'])
+- validatorsDef (optional) - Override the default array of validators, see the format above.
 
 ### Middleware behavior
-VeriToken middleware verifies that your issued token/session is being used following the roles you defined on our backoffice.
+VeriToken middleware verifies that your issued token/session is being used following the validators definition you provided.
 
-**It sends out only the token/session id, and the original client request headers - NO DATA INVOLVE**
-
-Following the token/seesion verification, VeriToken middleware adds a new property to your request object named: veriToken so later on your next middleware you can access the result using ```req.veriToken```.
+Following the token/seesion verification, the middleware adds a new property to your request object named: veriToken so later on your next middleware you can access the result using ```req.veriToken```.
 
 ##### If the token/session usage is valid ```req.veriToken``` will hold the following object: 
 ```javascript
@@ -105,13 +148,11 @@ Following the token/seesion verification, VeriToken middleware adds a new proper
 ```javascript
 {
     status: 'failed',
-    message: 'Error message'
+    message: 'Error message taken from the validator description'
 }
 ```
 
 **On your own middleware you can decide what is action based on VeriToken outcome :smile:**
-
-For any support or any question please email us to [support@veritoken.co](mailto:support@veritoken.co)
 
 #
 
