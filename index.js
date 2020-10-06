@@ -128,10 +128,10 @@ const verifyToken = (options) => {
 
                 if (reply){
                     const storedValidators = JSON.parse(reply);
-                    verify(redisClient, token, clientHeaders, res, clientIP, storedValidators);
+                    verify(redisClient, token, req.headers, res, clientIP, storedValidators);
                 } else {
                     // New token
-                    verify(redisClient, token, clientHeaders, clientIP, res, undefined, validatorsDef);
+                    verify(redisClient, token, req.headers, clientIP, res, undefined, validatorsDef);
                 }
             });
         } catch (error) {
