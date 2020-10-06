@@ -128,7 +128,7 @@ const verifyToken = (options) => {
 
                 if (reply){
                     const storedValidators = JSON.parse(reply);
-                    verify(redisClient, token, req.headers, res, clientIP, storedValidators);
+                    verify(redisClient, token, req.headers, clientIP, res, storedValidators);
                 } else {
                     // New token
                     verify(redisClient, token, req.headers, clientIP, res, undefined, validatorsDef);
@@ -179,14 +179,14 @@ const verify = (redisClient, token, clientHeaders, clientIP, res, validators, va
                 status: 'success',
                 message: 'Valid token'
             });
-            saveValidators(client, key, validators);
+            saveValidators(redisClient, key, validators);
         }
     } else {
         // New token just store with validators
         validatorsDef.forEach((validator) => {
             initValidator(clientHeaders, clientIP, validator);
         });
-        saveValidators(key, validatorsDef, res);
+        saveValidators(redisClient, key, validatorsDef, res);
     }
 };
 
