@@ -101,12 +101,12 @@ app.use(compression({filter: shouldCompress}));
 const veritoken = require('@mbsoft/veritoken');
 
 // For token authentication - PLACE IT IN A PLACE BEFOR YOUR TOKEN VERIFICATION MIDDLEWARE
-app.use(veritoken(redisClient));
+app.use(veritoken({redisClient}));
 
 // OR
 
 // For session based authentication - PLACE IT IN A PLACE BEFOR YOUR SESSION VERIFICATION MIDDLEWARE
-app.use(veritoken(redisClient), 'session', 'YOUR-SESSION-COOKIE-NAME');
+app.use(veritoken({redisClient: redisClient, type: 'session', sessionCookieName: 'YOUR-SESSION-COOKIE-NAME'}));
 
 // **********************************************
 
@@ -121,7 +121,7 @@ app.use((req,res,next) => {
 ```
 
 ### Middleware arguments
-VeriToken middleware supports the following arguments:
+VeriToken middleware supports the following options:
 - redisClient (required) - connected redis client.
 - type (optional) - 'token' - Token based authentication (default) or 'session' Cookie based authentication.
 - sessionCookieName (optional) - If type === 'session' apply the session cookie name located in your client request header.

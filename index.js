@@ -2,50 +2,80 @@
 
 const _ = require('lodash');
 
-const defaultValidatorsDef = [
-    {
-        "type" : "ip",
-        "enabled" : true,
-        "description" : "If your token was issued to one IP address, it cannot be used from another IP"
-    },
-    {
-        "type" : "User-Agent",
-        "enabled" : true,
-        "description" : "If your token was issued for a certain device, it cannot be used from another device"
-    },
-    {
-        "type" : "X-Csrf-Token",
-        "enabled" : true,
-        "description" : "If your token was issued with a Csrf token (Cross Site Request Forgery token), it cannot changed"
-    },
-    {
-        "type" : "maxHits",
-        "enabled" : true,
-        "description" : "The maximum number of API hits using this token",
-        "value" : 50
-    }
-];
-
 /**
  * Verity your client tokens/session ids.
- * @param redisClient The redis client object.
- * @param type Whether it's a 'token' (default) or 'session' - taken from a cookie key.
- * @param sessionCookieName If type === 'session' then you should set the session cookie name that holds the session id.
- * @param active Apply some rules whether you wish to activate the middleware - e.g. on dev or staging environments you don't wish to run the middleware. - default is: true
- * @param ignorePaths Array of paths you do not wish to verify e.g. ['/api/auth/login']
- * @param ignoreHttpMethods Array of HTTP method to ignore when testing the token. - the default is : ['OPTIONS', 'GET']
- * @param validatorsDef An object that defines the verification tests you wish to run. see defaultValidatorsDef above.
+ * @param options The options see below for more info.
  * @returns The middleware creates veriToken property under the request object (e.i. you can access it later on using req.veriToken).
  * The value of veriToken is an object with the following properties:  on failure : {status: 'failed', message: 'error  message'}
  * on success: {status: 'success', message: 'success message'}. Then you can do with in whatever you want on the next middleware.
  */
-const verifyToken = (redisClient,
-                     type = 'token',
-                     sessionCookieName = undefined,
-                     active = true,
-                     ignorePaths = [],
-                     ignoreHttpMethods = ['OPTIONS', 'GET'],
-                     validatorsDef = defaultValidatorsDef) => {
+const verifyToken = (options) => {
+
+    const opts = options || {};
+
+    // The redis client object.
+    const redisClient = opts.redisClient;
+    if (!redisClient) {
+        throw Error('Redis client must be provided');
+    }
+
+    // Whether it's a 'token' (default) or 'session' - taken from a cookie key.
+    let type = 'token';
+    if (opts.type) {
+        type = opts.type;
+    }
+
+    // If type === 'session' then you should set the session cookie name that holds the session id.
+    let sessionCookieName = undefined;
+    if (opts.sessionCookieName) {
+        sessionCookieName = opts.sessionCookieName;
+    }
+
+    // Apply some rules whether you wish to activate the middleware - e.g. on dev or staging environments you don't wish to run the middleware. - default is: true
+    let active = true;
+    if (typeof opts.active !== 'undefined') {
+        active = opts.active;
+    }
+
+    // Array of paths you do not wish to verify e.g. ['/api/auth/login']
+    let ignorePaths = [];
+    if (opts.ignorePaths) {
+        ignorePaths = opts.ignorePaths;
+    }
+
+    // Array of HTTP method to ignore when testing the token. - the default is : ['OPTIONS', 'GET']
+    let ignoreHttpMethods = ['OPTIONS', 'GET'];
+    if (opts.ignoreHttpMethods) {
+        ignoreHttpMethods = opts.ignoreHttpMethods;
+    }
+
+    // An object that defines the verification tests you wish to run.
+    let validatorsDef = [
+        {
+            "type" : "ip",
+            "enabled" : true,
+            "description" : "If your token was issued to one IP address, it cannot be used from another IP"
+        },
+        {
+            "type" : "User-Agent",
+            "enabled" : true,
+            "description" : "If your token was issued for a certain device, it cannot be used from another device"
+        },
+        {
+            "type" : "X-Csrf-Token",
+            "enabled" : true,
+            "description" : "If your token was issued with a Csrf token (Cross Site Request Forgery token), it cannot changed"
+        },
+        {
+            "type" : "maxHits",
+            "enabled" : true,
+            "description" : "The maximum number of API hits using this token",
+            "value" : 50
+        }
+    ];
+    if (opts.validatorsDef) {
+        validatorsDef = opts.validatorsDef;
+    }
 
     return (req, res, next) => {
         try {
