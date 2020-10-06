@@ -128,10 +128,10 @@ const verifyToken = (options) => {
 
                 if (reply){
                     const storedValidators = JSON.parse(reply);
-                    verify(redisClient, token, req.headers, clientIP, res, storedValidators);
+                    verify(redisClient, token, req, clientIP, next, storedValidators);
                 } else {
                     // New token
-                    verify(redisClient, token, req.headers, clientIP, res, undefined, validatorsDef);
+                    verify(redisClient, token, req, clientIP, next, undefined, validatorsDef);
                 }
             });
         } catch (error) {
@@ -149,44 +149,45 @@ const verifyToken = (options) => {
  * Verity client request token/session.
  * @param redisClient
  * @param token
- * @param clientHeaders
+ * @param req
  * @param clientIP
- * @param res
+ * @param next
  * @param validators
  * @param validatorsDef
  */
-const verify = (redisClient, token, clientHeaders, clientIP, res, validators, validatorsDef) => {
+const verify = (redisClient, token, req, clientIP, next, validators, validatorsDef) => {
     const key = `veritoken.${token}`;
     // Existing token
     if (validators) {
         let error;
         for (let i = 0; i < validators.length; i++ ) {
             const validator = validators[i];
-            error = check(clientHeaders, clientIP, validator);
+            error = check(req.headers, clientIP, validator);
             if (error) {
                 break;
             }
         }
 
         if (error) {
-            res.status('401').send({
+            req.veriToken = {
                 status: 'failed',
                 message: error
-            });
+            };
             redisClient.del(key);
+            next();
         } else {
-            res.status('200').send({
+            req.veriToken = {
                 status: 'success',
                 message: 'Valid token'
-            });
-            saveValidators(redisClient, key, validators);
+            };
+            saveValidators(redisClient, key, validators, req, next);
         }
     } else {
         // New token just store with validators
         validatorsDef.forEach((validator) => {
-            initValidator(clientHeaders, clientIP, validator);
+            initValidator(req.headers, clientIP, validator);
         });
-        saveValidators(redisClient, key, validatorsDef, res);
+        saveValidators(redisClient, key, validatorsDef, req, next);
     }
 };
 
@@ -196,20 +197,25 @@ const verify = (redisClient, token, clientHeaders, clientIP, res, validators, va
  * @param redisClient
  * @param key
  * @param validators
- * @param res
+ * @param req
+ * @param next
  */
-const saveValidators = (redisClient, key, validators, res) => {
+const saveValidators = (redisClient, key, validators, req, next) => {
     redisClient.set(key, JSON.stringify(validators), 'EX', 3600, (err) => {
         if (err) {
-            throw new Error('Fail to store in redis');
+            req.veriToken = {
+                status: 'failed',
+                message: 'Fail to store in redis'
+            };
         } else {
-            if (res) {
-                res.status('200').send({
+            if (!req.veriToken) {
+                req.veriToken = {
                     status: 'success',
                     message: 'Request holding a new token'
-                });
+                };
             }
         }
+        next();
     });
 };
 

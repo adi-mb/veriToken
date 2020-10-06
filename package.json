@@ -1,6 +1,6 @@
 {
   "name": "@mbsoft/veritoken",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "An express middleware that provides an extra layer of security to protect your server authentication. It prevents external and internal users from stealing or abusing your identity and exploiting your data.",
   "main": "index.js",
   "scripts": {
